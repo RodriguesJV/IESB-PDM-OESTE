@@ -1,8 +1,3 @@
-# Atividade 01 — Meu Diário Acadêmico
-
-Disciplina: Programação para Dispositivos Móveis (React Native / Expo)
-Aluno: João Vitor Rodrigues dos Santos
-
 ## Como o projeto foi criado
 
 ```bash
@@ -26,7 +21,15 @@ npx expo start
 - Input usa `width: '70%'` (percentual) e o container principal usa `flex: 1`,
   atendendo ao requisito de usar tanto largura percentual quanto flex.
 
+
+- O `Button` padrão foi substituído por `Pressable`. O estilo `buttonWrapperPressed`
+  (cor mais escura + opacidade reduzida) é aplicado dinamicamente através da
+  função `({ pressed }) => [...]`, dando feedback visual de "pressionado".
+- Foi adicionado um `Switch` com o rótulo "Mostrar apenas obrigatórias". O estado
+  é controlado via `useState`, mas ainda **não** filtra a lista de disciplinas, apenas alterna visualmente .
+
 ## Prints da tela
 
+# Tela Inicial
+![alt text](image.png)
 
-![tela inicial](./prints/tela-inicial.png)
