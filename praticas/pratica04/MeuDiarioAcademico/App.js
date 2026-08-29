@@ -1,36 +1,28 @@
 import React, { useState } from 'react';
 import { StyleSheet, Text, View, TextInput, Pressable, Switch } from 'react-native';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import {
-  APP_TITLE,
-  INPUT_PLACEHOLDER,
-  BUTTON_TEXT,
-  LIST_TITLE,
-} from './labels';
+import { APP_TITLE,INPUT_PLACEHOLDER,BUTTON_TEXT,LIST_TITLE,} from './labels';
 
-// Lista estática por enquanto — o foco desta atividade é layout e componentes,
-// não persistência ou estado real da lista.
+
 const disciplinas = [
   { id: '1', nome: 'Programação para Dispositivos Móveis' },
-  { id: '2', nome: 'Banco de Dados' },
-  { id: '3', nome: 'Engenharia de Software' },
-  { id: '4', nome: 'Redes de Computadores' },
+  { id: '2', nome: 'Aprendizagem de Máquina' },
+  { id: '3', nome: 'Métricas e Arquitetura de Software' },
+  { id: '4', nome: 'Auditoria e Segurança no Desenvolvimento de Aplicações' },
 ];
 
 export default function App() {
-  // Estado do Switch — por enquanto só controla o valor exibido,
-  // sem aplicar filtro real na lista (conforme pedido no desafio opcional).
+
   const [mostrarApenasObrigatorias, setMostrarApenasObrigatorias] = useState(false);
 
   return (
-    // SafeAreaProvider precisa envolver toda a árvore para que o
-    // SafeAreaView (e outros hooks de safe area) funcionem corretamente.
+    
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
-        {/* Cabeçalho */}
+      
         <Text style={styles.title}>{APP_TITLE}</Text>
 
-        {/* Linha com input (~70%) e botão (~28%) */}
+    
         <View style={styles.row}>
           <TextInput
             style={styles.input}
@@ -40,14 +32,14 @@ export default function App() {
             onPress={() => {}}
             style={({ pressed }) => [
               styles.buttonWrapper,
-              pressed && styles.buttonWrapperPressed, // estilo aplicado só enquanto pressionado
+              pressed && styles.buttonWrapperPressed,
             ]}
           >
             <Text style={styles.buttonText}>{BUTTON_TEXT}</Text>
           </Pressable>
         </View>
 
-        {/* Switch opcional — ainda sem lógica de filtro real */}
+       
         <View style={styles.switchRow}>
           <Text style={styles.switchLabel}>Mostrar apenas obrigatórias</Text>
           <Switch
@@ -56,7 +48,7 @@ export default function App() {
           />
         </View>
 
-        {/* Lista de disciplinas */}
+        
         <Text style={styles.listTitle}>{LIST_TITLE}</Text>
 
         <View style={styles.list}>
@@ -73,7 +65,7 @@ export default function App() {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1, // ocupa toda a área segura da tela
+    flex: 1, 
     padding: 20,
     backgroundColor: '#f5f5f5',
   },
@@ -85,16 +77,12 @@ const styles = StyleSheet.create({
   },
   row: {
     flexDirection: 'row',
-    // alignItems 'center': alinha input e botão na mesma linha vertical,
-    // já que o Button tem altura fixa diferente do TextInput.
     alignItems: 'center',
-    // justifyContent 'space-between': empurra o botão para a direita,
-    // deixando o espaço livre entre ele e o input.
     justifyContent: 'space-between',
     marginBottom: 24,
   },
   input: {
-    width: '70%', // uso de largura percentual (exigido no item 4-D)
+    width: '70%', 
     borderWidth: 1,
     borderColor: '#999',
     borderRadius: 8,
@@ -107,11 +95,11 @@ const styles = StyleSheet.create({
     backgroundColor: '#2196F3',
     paddingVertical: 12,
     borderRadius: 8,
-    alignItems: 'center', // centraliza o texto dentro do botão
+    alignItems: 'center', 
     justifyContent: 'center',
   },
   buttonWrapperPressed: {
-    backgroundColor: '#1769aa', // tom mais escuro para indicar "pressionado"
+    backgroundColor: '#1769aa', 
     opacity: 0.85,
   },
   buttonText: {
@@ -120,7 +108,7 @@ const styles = StyleSheet.create({
   },
   switchRow: {
     flexDirection: 'row',
-    alignItems: 'center', // alinha o texto e o switch na mesma linha vertical
+    alignItems: 'center', 
     justifyContent: 'space-between',
     marginBottom: 16,
   },
