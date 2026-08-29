@@ -1,93 +1,35 @@
-# 💻 Prática 04: Dando Vida ao App (Adicionar e Deletar)
-
-Vamos conectar a interface ao React. Ao final, você digita uma tarefa, adiciona à lista e remove pelo `X`.
-
-## 🎯 Objetivos
-
-* Criar estados para o texto do input e para a lista.
-* Implementar `handleAdd` e `handleDelete` com imutabilidade.
-* Trocar cards estáticos por renderização com `.map()`.
-* Validar o fluxo no Expo Go.
-
----
-
-## 📦 Fluxo Git
-
-1. Crie a Issue da **Prática 04**.
-2. Branch:
+## Como o projeto foi criado
 
 ```bash
-git checkout -b feature/pratica04
-```
-
-3. Continue o app em `praticas/pratica04` (crie o Expo se ainda não existir, ou evolua a cópia da Prática 03).
-
-```bash
-npm install
+npx create-expo-app@latest MeuDiarioAcademico --template blank
+cd MeuDiarioAcademico
+npx expo install react-native-safe-area-context
 npx expo start
 ```
 
----
+## Estrutura
 
-## 🛠️ O que implementar
+- `labels.js` — constantes de texto (título, placeholder, botão, título da lista)
+- `App.js` — tela principal (SafeAreaView, cabeçalho, linha de cadastro com
+  TextInput + Botão, lista de disciplinas)
 
-### 1. Estados
+## Decisões de layout
 
-No componente principal:
+- `flexDirection: 'row'` na linha de cadastro para colocar input e botão lado a lado.
+- `alignItems: 'center'` para alinhar verticalmente o input e o botão (alturas diferentes).
+- `justifyContent: 'space-between'` para distribuir o espaço entre o input e o botão.
+- Input usa `width: '70%'` (percentual) e o container principal usa `flex: 1`,
+  atendendo ao requisito de usar tanto largura percentual quanto flex.
 
-* `taskText` — string do que está sendo digitado (`useState('')`)
-* `tasks` — array de tarefas (`useState([])`)
 
-### 2. Capturar digitação
+- O `Button` padrão foi substituído por `Pressable`. O estilo `buttonWrapperPressed`
+  (cor mais escura + opacidade reduzida) é aplicado dinamicamente através da
+  função `({ pressed }) => [...]`, dando feedback visual de "pressionado".
+- Foi adicionado um `Switch` com o rótulo "Mostrar apenas obrigatórias". O estado
+  é controlado via `useState`, mas ainda **não** filtra a lista de disciplinas, apenas alterna visualmente .
 
-No `TextInput`:
+## Prints da tela
 
-* `value={taskText}`
-* `onChangeText={setTaskText}`
+# Tela Inicial
+![alt text](image.png)
 
-### 3. Função `handleAdd`
-
-* Ignore texto vazio (`trim`).
-* Crie objeto `{ id, title }` (`id` com `Date.now().toString()` é suficiente neste exercício).
-* Atualize a lista com spread: `setTasks([...tasks, newTask])`.
-* Limpe o input: `setTaskText('')`.
-* Ligue essa função no `onPress` do botão `+`.
-
-### 4. Renderizar com `.map()`
-
-* Remova os cards hardcoded.
-* Use `tasks.map(...)` para desenhar cada card.
-* Não esqueça a prop `key={item.id}`.
-
-### 5. Função `handleDelete(id)`
-
-* Use `filter` para gerar nova lista sem o id clicado.
-* Passe a função ao `onPress` do `X` de cada card.
-
----
-
-## 🧪 Como testar
-
-1. Adicione 3 tarefas diferentes.
-2. Delete a do meio.
-3. Confirme que o input limpa após adicionar.
-4. (Esperado) Com muitas tarefas, a tela **pode não rolar bem** — isso será resolvido na próxima aula com `FlatList`.
-
----
-
-## ✅ Critérios de entrega
-
-* [ ] Adicionar e deletar funcionando no celular
-* [ ] Estados + imutabilidade (sem `push`/`splice` no estado)
-* [ ] Lista renderizada com `.map()`
-* [ ] Issue, branch `feature/pratica04`, commit, push e Pull Request
-
-### Commit sugerido
-
-```bash
-git add .
-git commit -m "Feat: Implementa useState para adicionar e remover tarefas"
-git push origin feature/pratica04
-```
-
-Na **Aula 05**, vamos melhorar listas (`FlatList`) e persistir dados no aparelho (`AsyncStorage`). A organização em componentes fica para a Aula 06.
