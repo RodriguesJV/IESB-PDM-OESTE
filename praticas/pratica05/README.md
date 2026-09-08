@@ -1,79 +1,35 @@
-# 💻 Prática 05: FlatList e App que Não Esquece
-
-Nesta prática o To-Do ganha lista eficiente e persistência local. **Ainda não** vamos extrair componentes — isso é a Prática 06.
-
-## 🎯 Objetivos
-
-* Substituir `.map()` por `FlatList`.
-* Salvar e carregar tarefas com AsyncStorage + `useEffect`.
-* Validar que fechar e reabrir o app mantém os dados.
-
----
-
-## 📦 Fluxo Git
-
-1. Crie a Issue da **Prática 05**.
-2. Branch:
+## Como o projeto foi criado
 
 ```bash
-git checkout -b feature/pratica05
-```
-
-3. Trabalhe em `praticas/pratica05` (evolua a base da Prática 04).
-
-```bash
-npm install
+npx create-expo-app@latest MeuDiarioAcademico --template blank
+cd MeuDiarioAcademico
+npx expo install react-native-safe-area-context
 npx expo start
 ```
 
----
+## Estrutura
 
-## 🛠️ Parte A — FlatList
+- `labels.js` — constantes de texto (título, placeholder, botão, título da lista)
+- `App.js` — tela principal (SafeAreaView, cabeçalho, linha de cadastro com
+  TextInput + Botão, lista de disciplinas)
 
-1. Remova o `.map()` da lista.
-2. Importe `FlatList` de `react-native`.
-3. Configure:
+## Decisões de layout
 
-* `data={tasks}`
-* `keyExtractor={(item) => item.id}`
-* `renderItem={...}` desenhando cada tarefa (card ainda pode ficar inline no `App`)
+- `flexDirection: 'row'` na linha de cadastro para colocar input e botão lado a lado.
+- `alignItems: 'center'` para alinhar verticalmente o input e o botão (alturas diferentes).
+- `justifyContent: 'space-between'` para distribuir o espaço entre o input e o botão.
+- Input usa `width: '70%'` (percentual) e o container principal usa `flex: 1`,
+  atendendo ao requisito de usar tanto largura percentual quanto flex.
 
-4. Teste adicionando **muitas** tarefas (15+) e confirme a rolagem suave.
 
----
+- O `Button` padrão foi substituído por `Pressable`. O estilo `buttonWrapperPressed`
+  (cor mais escura + opacidade reduzida) é aplicado dinamicamente através da
+  função `({ pressed }) => [...]`, dando feedback visual de "pressionado".
+- Foi adicionado um `Switch` com o rótulo "Mostrar apenas obrigatórias". O estado
+  é controlado via `useState`, mas ainda **não** filtra a lista de disciplinas, apenas alterna visualmente .
 
-## 🛠️ Parte B — AsyncStorage
+## Prints da tela
 
-1. Pare o bundler (Ctrl+C) e instale:
+# Tela Inicial
+![alt text](image.png)
 
-```bash
-npx expo install @react-native-async-storage/async-storage
-```
-
-2. Crie `saveTasks` (async): grave a lista com `setItem` + `JSON.stringify`.
-3. Chame `saveTasks` após adicionar e após deletar (com a lista já atualizada).
-4. Crie `loadTasks` (async): leia com `getItem`, faça `JSON.parse` se houver valor, e use `setTasks`.
-5. No `useEffect` com `[]`, chame `loadTasks()` na montagem.
-
-### Teste extremo
-
-Adicione 3 tarefas → feche o app por completo (remover dos recentes) → abra de novo → as tarefas devem continuar lá.
-
----
-
-## ✅ Critérios de entrega
-
-* [ ] `FlatList` rolando com muitos itens
-* [ ] Persistência: fechar e reabrir mantém as tarefas
-* [ ] Add e delete continuam funcionando
-* [ ] Issue, branch `feature/pratica05`, commit, push e Pull Request
-
-### Commit sugerido
-
-```bash
-git add .
-git commit -m "Feat: Adiciona FlatList e AsyncStorage para persistir tarefas"
-git push origin feature/pratica05
-```
-
-Na **Aula 06**, vamos **organizar o código**: extrair o card da tarefa para um componente reutilizável com props.
