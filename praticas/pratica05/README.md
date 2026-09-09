@@ -1,35 +1,63 @@
-## Como o projeto foi criado
+# MetasSemestre
 
+App de metas acadêmicas desenvolvido em React Native (Expo), com componentização,
+gerenciamento de estado, eventos e persistência local usando AsyncStorage.
+
+## Disciplina
+Programação para Dispositivos Móveis (React Native / Expo) — IESB
+Professor: Marcelo Alves Farias
+
+## Objetivo
+Aplicar `useState`, props, componentização, `Pressable`, `useEffect` e
+`AsyncStorage` em um app de metas acadêmicas com persistência local.
+
+## Funcionalidades
+- Cadastro de metas de estudo (texto + id único + data de criação)
+- Remoção de metas
+- Marcar meta como concluída (estilo riscado)
+- Contador de metas pendentes / concluídas no cabeçalho
+- Persistência local: os dados sobrevivem ao fechar e reabrir o app
+- Validação de campo vazio com `Alert`
+- Feedback visual (ripple/pressed) nos botões
+
+## Estrutura do projeto
+
+MetasSemestre/
+├── App.js
+├── components/
+│ ├── MetaInput.js → input de texto + botão de adicionar
+│ └── MetaList.js → lista de metas (FlatList)
+└── assets/
+
+
+## Persistência (AsyncStorage)
+
+**useEffect de CARGA** — em `App.js`, logo no início do componente `App`.
+Executa uma única vez, ao montar o app (array de dependências `[]`), e busca
+os dados salvos na chave `@metas_semestre` para popular o estado `metas`.
+
+**useEffect de SALVAMENTO** — em `App.js`, logo após o de carga.
+Executa toda vez que o estado `metas` é alterado (dependência `[metas]`),
+salvando o array atualizado no AsyncStorage com `JSON.stringify`.
+
+Ambos os efeitos usam `try/catch` para tratar erros de leitura/escrita e
+exibem um `Alert` amigável em caso de falha.
+
+## Como rodar
 ```bash
-npx create-expo-app@latest MeuDiarioAcademico --template blank
-cd MeuDiarioAcademico
-npx expo install react-native-safe-area-context
+npm install
 npx expo start
 ```
 
-## Estrutura
+## Prints
 
-- `labels.js` — constantes de texto (título, placeholder, botão, título da lista)
-- `App.js` — tela principal (SafeAreaView, cabeçalho, linha de cadastro com
-  TextInput + Botão, lista de disciplinas)
+# Lista Vazia
+ ![alt text](MetasSemestre/prints/image1.png)
 
-## Decisões de layout
+# Com Itens
 
-- `flexDirection: 'row'` na linha de cadastro para colocar input e botão lado a lado.
-- `alignItems: 'center'` para alinhar verticalmente o input e o botão (alturas diferentes).
-- `justifyContent: 'space-between'` para distribuir o espaço entre o input e o botão.
-- Input usa `width: '70%'` (percentual) e o container principal usa `flex: 1`,
-  atendendo ao requisito de usar tanto largura percentual quanto flex.
+![alt text](MetasSemestre/prints/image2.png)
 
+# Após reabrir o app 
 
-- O `Button` padrão foi substituído por `Pressable`. O estilo `buttonWrapperPressed`
-  (cor mais escura + opacidade reduzida) é aplicado dinamicamente através da
-  função `({ pressed }) => [...]`, dando feedback visual de "pressionado".
-- Foi adicionado um `Switch` com o rótulo "Mostrar apenas obrigatórias". O estado
-  é controlado via `useState`, mas ainda **não** filtra a lista de disciplinas, apenas alterna visualmente .
-
-## Prints da tela
-
-# Tela Inicial
-![alt text](image.png)
-
+![alt text](MetasSemestre/prints/image3.png)
