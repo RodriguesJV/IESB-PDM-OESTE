@@ -1,79 +1,63 @@
-# 💻 Prática 05: FlatList e App que Não Esquece
+# MetasSemestre
 
-Nesta prática o To-Do ganha lista eficiente e persistência local. **Ainda não** vamos extrair componentes — isso é a Prática 06.
+App de metas acadêmicas desenvolvido em React Native (Expo), com componentização,
+gerenciamento de estado, eventos e persistência local usando AsyncStorage.
 
-## 🎯 Objetivos
+## Disciplina
+Programação para Dispositivos Móveis (React Native / Expo) — IESB
+Professor: Marcelo Alves Farias
 
-* Substituir `.map()` por `FlatList`.
-* Salvar e carregar tarefas com AsyncStorage + `useEffect`.
-* Validar que fechar e reabrir o app mantém os dados.
+## Objetivo
+Aplicar `useState`, props, componentização, `Pressable`, `useEffect` e
+`AsyncStorage` em um app de metas acadêmicas com persistência local.
 
----
+## Funcionalidades
+- Cadastro de metas de estudo (texto + id único + data de criação)
+- Remoção de metas
+- Marcar meta como concluída (estilo riscado)
+- Contador de metas pendentes / concluídas no cabeçalho
+- Persistência local: os dados sobrevivem ao fechar e reabrir o app
+- Validação de campo vazio com `Alert`
+- Feedback visual (ripple/pressed) nos botões
 
-## 📦 Fluxo Git
+## Estrutura do projeto
 
-1. Crie a Issue da **Prática 05**.
-2. Branch:
+MetasSemestre/
+├── App.js
+├── components/
+│ ├── MetaInput.js → input de texto + botão de adicionar
+│ └── MetaList.js → lista de metas (FlatList)
+└── assets/
 
-```bash
-git checkout -b feature/pratica05
-```
 
-3. Trabalhe em `praticas/pratica05` (evolua a base da Prática 04).
+## Persistência (AsyncStorage)
 
+**useEffect de CARGA** — em `App.js`, logo no início do componente `App`.
+Executa uma única vez, ao montar o app (array de dependências `[]`), e busca
+os dados salvos na chave `@metas_semestre` para popular o estado `metas`.
+
+**useEffect de SALVAMENTO** — em `App.js`, logo após o de carga.
+Executa toda vez que o estado `metas` é alterado (dependência `[metas]`),
+salvando o array atualizado no AsyncStorage com `JSON.stringify`.
+
+Ambos os efeitos usam `try/catch` para tratar erros de leitura/escrita e
+exibem um `Alert` amigável em caso de falha.
+
+## Como rodar
 ```bash
 npm install
 npx expo start
 ```
 
----
+## Prints
 
-## 🛠️ Parte A — FlatList
+# Lista Vazia
+ ![alt text](MetasSemestre/prints/image1.png)
 
-1. Remova o `.map()` da lista.
-2. Importe `FlatList` de `react-native`.
-3. Configure:
+# Com Itens
 
-* `data={tasks}`
-* `keyExtractor={(item) => item.id}`
-* `renderItem={...}` desenhando cada tarefa (card ainda pode ficar inline no `App`)
+![alt text](MetasSemestre/prints/image2.png)
 
-4. Teste adicionando **muitas** tarefas (15+) e confirme a rolagem suave.
+# Após reabrir o app 
 
----
-
-## 🛠️ Parte B — AsyncStorage
-
-1. Pare o bundler (Ctrl+C) e instale:
-
-```bash
-npx expo install @react-native-async-storage/async-storage
-```
-
-2. Crie `saveTasks` (async): grave a lista com `setItem` + `JSON.stringify`.
-3. Chame `saveTasks` após adicionar e após deletar (com a lista já atualizada).
-4. Crie `loadTasks` (async): leia com `getItem`, faça `JSON.parse` se houver valor, e use `setTasks`.
-5. No `useEffect` com `[]`, chame `loadTasks()` na montagem.
-
-### Teste extremo
-
-Adicione 3 tarefas → feche o app por completo (remover dos recentes) → abra de novo → as tarefas devem continuar lá.
-
----
-
-## ✅ Critérios de entrega
-
-* [ ] `FlatList` rolando com muitos itens
-* [ ] Persistência: fechar e reabrir mantém as tarefas
-* [ ] Add e delete continuam funcionando
-* [ ] Issue, branch `feature/pratica05`, commit, push e Pull Request
-
-### Commit sugerido
-
-```bash
-git add .
-git commit -m "Feat: Adiciona FlatList e AsyncStorage para persistir tarefas"
-git push origin feature/pratica05
-```
-
-Na **Aula 06**, vamos **organizar o código**: extrair o card da tarefa para um componente reutilizável com props.
+![alt text](MetasSemestre/prints/image3.png)
