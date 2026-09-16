@@ -1,33 +1,31 @@
 # RotinaIESB
 
 App organizador simples da rotina acadêmica do aluno no IESB 
+
 ## Comando usado para criar o projeto
 
-```bash
 npx create-expo-app@latest RotinaIESB --template blank
 cd RotinaIESB
 npx expo install @react-native-async-storage/async-storage react-native-safe-area-context
-```
 
 Para rodar:
 
-```bash
+npm install
 npx expo start
-```
 
 ## Prints
 
-> Substitua os placeholders abaixo pelas capturas de tela reais do seu
-> emulador/celular antes de entregar.
 
-- **Tela vazia** (app aberto pela primeira vez, sem compromissos):
-  `![tela vazia](./prints/tela-vazia.png)`
-- **Tela com itens** (após adicionar alguns compromissos):
-  `![tela com itens](./prints/tela-com-itens.png)`
-- **Após reabrir o app** (mostrando que os dados persistiram):
-  `![apos reabrir](./prints/apos-reabrir.png)`
+- **Tela vazia** 
+![alt text](assets\tela-inicial.png)
 
-##  Mapa do useEffect (carga e salvamento)
+- **Tela com itens** 
+![alt text](assets\telaComItems.png)
+
+- **Após reabrir o app** 
+![alt text](assets\telaReabrir.png)
+
+## Mapa do useEffect (carga e salvamento)
 
 Ambos ficam em `App.js`:
 
@@ -48,4 +46,13 @@ Ambos ficam em `App.js`:
 - `components/CompromissoInput.js` — campo de texto + botão de adicionar
   (props: value, onChangeText, onAdd, labels).
 - `components/CompromissoList.js` — lista de compromissos com remoção
-  (props: itens, onDelete, tituloLista, listaVazia).
+  (props: itens, onDelete, onToggle, tituloLista, listaVazia).
+
+
+- **O2 — Marcar compromisso como concluído**: toque na área de texto do
+  item alterna `concluido: boolean`; quando `true`, o texto aparece
+  riscado (`textDecorationLine: 'line-through'`) e com cor mais clara.
+  O botão "Remover" fica separado para não conflitar com o toggle.
+- **O3 — Contador no cabeçalho**: badge ao lado do título mostrando
+  "X pendentes", calculado a partir de
+  `compromissos.filter(item => !item.concluido).length`.

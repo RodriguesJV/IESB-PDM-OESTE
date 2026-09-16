@@ -1,8 +1,3 @@
-// App.js
-// Atividade 03 - Integradora - App Rotina IESB
-// Consolida: Expo, import/export, StyleSheet, Flexbox, useState,
-// props, componentização, Pressable, useEffect, AsyncStorage
-
 import React, { useState, useEffect } from "react";
 import { View, Text, Image, Alert, StyleSheet } from "react-native";
 import {
@@ -69,6 +64,7 @@ export default function App() {
       id: Date.now().toString(),
       texto: texto.trim(),
       criadoEm: Date.now().toString(),
+      concluido: false, // desafio opcional O2
     };
     setCompromissos((atual) => [novoCompromisso, ...atual]);
     setTexto("");
@@ -78,12 +74,29 @@ export default function App() {
     setCompromissos((atual) => atual.filter((item) => item.id !== id));
   }
 
+  // Desafio opcional O2: alterna concluido no compromisso pelo id
+  function handleToggle(id) {
+    setCompromissos((atual) =>
+      atual.map((item) =>
+        item.id === id ? { ...item, concluido: !item.concluido } : item
+      )
+    );
+  }
+
+  // Desafio opcional O3: contador de pendentes no cabeçalho
+  const pendentes = compromissos.filter((item) => !item.concluido).length;
+
   return (
     <SafeAreaProvider>
       <SafeAreaView style={styles.container}>
         <View style={styles.header}>
-          <Image source={require("./assets/logo.png")} style={styles.logo} />
-          <Text style={styles.headerTitulo}>{labels.tituloApp}</Text>
+          <View style={styles.headerLeft}>
+            <Image source={require("./assets/logo.png")} style={styles.logo} />
+            <Text style={styles.headerTitulo}>{labels.tituloApp}</Text>
+          </View>
+          <View style={styles.badge}>
+            <Text style={styles.badgeTexto}>{pendentes} pendentes</Text>
+          </View>
         </View>
 
         <CompromissoInput
@@ -96,6 +109,7 @@ export default function App() {
         <CompromissoList
           itens={compromissos}
           onDelete={handleRemover}
+          onToggle={handleToggle}
           tituloLista={labels.tituloLista}
           listaVazia={labels.listaVazia}
         />
@@ -112,12 +126,16 @@ const styles = StyleSheet.create({
   header: {
     flexDirection: "row",
     alignItems: "center",
-    justifyContent: "flex-start",
+    justifyContent: "space-between",
     paddingHorizontal: 16,
     paddingVertical: 14,
     backgroundColor: "#fff",
     borderBottomWidth: 1,
     borderBottomColor: "#e2e8f0",
+  },
+  headerLeft: {
+    flexDirection: "row",
+    alignItems: "center",
   },
   logo: {
     width: 40,
@@ -129,5 +147,18 @@ const styles = StyleSheet.create({
     fontSize: 20,
     fontWeight: "700",
     color: "#0f172a",
+  },
+  badge: {
+    backgroundColor: "#eff6ff",
+    borderRadius: 999,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    borderWidth: 1,
+    borderColor: "#bfdbfe",
+  },
+  badgeTexto: {
+    fontSize: 12,
+    fontWeight: "600",
+    color: "#2563eb",
   },
 });
