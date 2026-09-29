@@ -1,10 +1,9 @@
-import {Text} from 'react-native'
+import {Text} from 'react-native';
 
-function GerenciarDespesas(){
+function GerenciarDespesa(){
     return (
-    <Text> GerenciarDespesas </Text>
+        <Text>Gerenciar despesas</Text>
     )
-        
 }
 
-export default GerenciarDespesas;
+export default GerenciarDespesa;
