@@ -5,6 +5,7 @@ import TodasDespesas from './screens/TodasDespesas';
 import DespesasRecentes from './screens/DespesasRecentes';
 import GerenciarDespesa from './screens/GerenciarDespesa';
 import { NavigationContainer } from '@react-navigation/native';
+import { Ionicons } from '@expo/vector-icons';
 
 export default function App() {
   const Tab = createBottomTabNavigator();
@@ -12,7 +13,10 @@ export default function App() {
   function BottonTabScreen() {
     return (
       <Tab.Navigator>
-        <Tab.Screen name='DespesasRecentes' component={DespesasRecentes} />
+        <Tab.Screen name='DespesasRecentes' component={DespesasRecentes} options={{tabBarIcon:({color, size}) => (Ionicons name="hourglass" size={size} color={color}) />,
+      tabBarLabel: 'Recentes',
+      
+      }} />
         <Tab.Screen name='TodasDespesas' component={TodasDespesas} />
       </Tab.Navigator>
     )
