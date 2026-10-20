@@ -1,20 +1,29 @@
-import { View, Pressable, Text, StyleSheet } from 'react-native';
-import { CATEGORIAS } from '../../constants/categorias';
+import { View, Pressable, Text, StyleSheet, useColorScheme } from 'react-native';
+import { CATEGORIES } from '../../constants/categories';
+import { getTheme } from '../../constants/theme';
 
-export default function FiltroCategoria({ selecionada, onSelecionar }) {
-  const opcoes = ['Todas', ...CATEGORIAS];
+export default function FiltroCategoria({ selected, onSelect }) {
+  const colors = getTheme(useColorScheme());
+  const options = ['Todas', ...CATEGORIES];
 
   return (
-    <View style={styles.linha}>
-      {opcoes.map((cat) => {
-        const ativa = (cat === 'Todas' && !selecionada) || cat === selecionada;
+    <View style={styles.row}>
+      {options.map((cat) => {
+        const active = (cat === 'Todas' && !selected) || cat === selected;
         return (
           <Pressable
             key={cat}
-            onPress={() => onSelecionar(cat === 'Todas' ? '' : cat)}
-            style={[styles.chip, ativa && styles.chipAtivo]}
+            onPress={() => onSelect(cat === 'Todas' ? '' : cat)}
+            style={[styles.chip, { backgroundColor: active ? colors.primary : colors.chip }]}
           >
-            <Text style={[styles.texto, ativa && styles.textoAtivo]}>{cat}</Text>
+            <Text
+              style={{
+                color: active ? colors.onPrimary : colors.chipText,
+                fontWeight: active ? 'bold' : 'normal',
+              }}
+            >
+              {cat}
+            </Text>
           </Pressable>
         );
       })}
@@ -23,9 +32,6 @@ export default function FiltroCategoria({ selecionada, onSelecionar }) {
 }
 
 const styles = StyleSheet.create({
-  linha: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, paddingTop: 12, gap: 8 },
-  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16, backgroundColor: '#e0e0e0' },
-  chipAtivo: { backgroundColor: '#3e04c3' },
-  texto: { color: '#333' },
-  textoAtivo: { color: '#fff', fontWeight: 'bold' },
+  row: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 16, paddingTop: 10, gap: 8 },
+  chip: { paddingHorizontal: 12, paddingVertical: 6, borderRadius: 16 },
 });

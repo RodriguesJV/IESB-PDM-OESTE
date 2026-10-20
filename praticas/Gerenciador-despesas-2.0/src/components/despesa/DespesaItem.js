@@ -1,25 +1,27 @@
-import { Pressable, View, Text, StyleSheet } from 'react-native';
+import { Pressable, View, Text, StyleSheet, Platform, useColorScheme } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { getDataFormatada } from '../../util/data';
+import { getTheme } from '../../constants/theme';
 
-export default function DespesaItem({ id, descricao, valor, data, categoria }) {
+export default function DespesaItem({ id, description, amount, date, category }) {
   const navigation = useNavigation();
+  const colors = getTheme(useColorScheme());
 
   return (
     <Pressable
-      onPress={() => navigation.navigate('GerenciarDespesa', { despesaId: id })}
-      style={({ pressed }) => pressed && styles.pressionado}
+      onPress={() => navigation.navigate('GerenciarDespesa', { expenseId: id })}
+      style={({ pressed }) => pressed && styles.pressed}
     >
-      <View style={styles.item}>
+      <View style={[styles.item, { backgroundColor: colors.card, borderColor: colors.border }]}>
         <View style={styles.info}>
-          <Text style={styles.descricao}>{descricao}</Text>
-          <Text style={styles.data}>{getDataFormatada(data)}</Text>
-          <View style={styles.tag}>
-            <Text style={styles.tagTexto}>{categoria}</Text>
+          <Text style={[styles.description, { color: colors.text }]}>{description}</Text>
+          <Text style={[styles.date, { color: colors.textSecondary }]}>{getDataFormatada(date)}</Text>
+          <View style={[styles.tag, { backgroundColor: colors.chip }]}>
+            <Text style={[styles.tagText, { color: colors.chipText }]}>{category}</Text>
           </View>
         </View>
-        <View style={styles.valorBox}>
-          <Text style={styles.valor}>R$ {valor.toFixed(2)}</Text>
+        <View style={[styles.amountBox, { backgroundColor: colors.summaryBackground }]}>
+          <Text style={[styles.amount, { color: colors.summaryText }]}>R$ {amount.toFixed(2)}</Text>
         </View>
       </View>
     </Pressable>
@@ -27,35 +29,41 @@ export default function DespesaItem({ id, descricao, valor, data, categoria }) {
 }
 
 const styles = StyleSheet.create({
-  pressionado: { opacity: 0.7 },
+  pressed: { opacity: 0.7 },
   item: {
     padding: 12,
     marginVertical: 8,
-    backgroundColor: '#3e04c3',
     flexDirection: 'row',
     justifyContent: 'space-between',
-    borderRadius: 6,
-    elevation: 3,
+    borderRadius: 8,
+    borderWidth: 1,
+    ...Platform.select({
+      ios: {
+        shadowColor: '#000',
+        shadowOffset: { width: 0, height: 2 },
+        shadowOpacity: 0.25,
+        shadowRadius: 4,
+      },
+      android: { elevation: 4 },
+    }),
   },
   info: { flex: 1 },
-  descricao: { fontSize: 16, fontWeight: 'bold', color: '#fff', marginBottom: 4 },
-  data: { color: '#e4d9fd', marginBottom: 6 },
+  description: { fontSize: 16, fontWeight: 'bold', marginBottom: 4 },
+  date: { marginBottom: 6 },
   tag: {
     alignSelf: 'flex-start',
-    backgroundColor: '#e0e0e0',
     paddingHorizontal: 10,
     paddingVertical: 3,
     borderRadius: 12,
   },
-  tagTexto: { fontSize: 12, color: '#333', fontWeight: '600' },
-  valorBox: {
+  tagText: { fontSize: 12, fontWeight: '600' },
+  amountBox: {
     paddingHorizontal: 12,
     paddingVertical: 6,
-    backgroundColor: '#fff',
     borderRadius: 4,
     justifyContent: 'center',
-    minWidth: 90,
     alignItems: 'center',
+    minWidth: 90,
   },
-  valor: { fontWeight: 'bold', color: '#3e04c3' },
+  amount: { fontWeight: 'bold' },
 });

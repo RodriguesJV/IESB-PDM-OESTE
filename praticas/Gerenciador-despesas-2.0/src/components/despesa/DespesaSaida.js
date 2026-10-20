@@ -1,23 +1,19 @@
-import { View, Text, StyleSheet } from 'react-native';
+import { View, StyleSheet, useColorScheme } from 'react-native';
 import DespesaSumario from './DespesaSumario';
 import DespesaLista from './DespesaLista';
+import { getTheme } from '../../constants/theme';
 
-export default function DespesaSaida({ despesas, periodo, textoFallback }) {
-  let conteudo = <Text style={styles.fallback}>{textoFallback}</Text>;
-
-  if (despesas.length > 0) {
-    conteudo = <DespesaLista despesas={despesas} />;
-  }
+export default function DespesaSaida({ expenses, periodo, emptyHint }) {
+  const colors = getTheme(useColorScheme());
 
   return (
-    <View style={styles.container}>
-      <DespesaSumario despesas={despesas} periodo={periodo} />
-      {conteudo}
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      <DespesaSumario expenses={expenses} periodo={periodo} />
+      <DespesaLista expenses={expenses} emptyHint={emptyHint} />
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 16 },
-  fallback: { color: '#555', fontSize: 16, textAlign: 'center', marginTop: 32 },
+  container: { flex: 1, paddingHorizontal: 16, paddingTop: 12 },
 });
