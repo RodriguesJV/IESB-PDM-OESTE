@@ -1,19 +1,21 @@
-import { useContext } from 'react';
-import { DespesasContext } from '../store/despesas-context';
+import { useMemo } from 'react';
+import { useExpenses } from '../store/expenses-context';
 import DespesaSaida from '../components/despesa/DespesaSaida';
 import { getDataMinusDias } from '../util/data';
 
 export default function DespesasRecentes() {
-  const { despesas } = useContext(DespesasContext);
+  const { expenses } = useExpenses();
 
-  const seteDiasAtras = getDataMinusDias(new Date(), 7);
-  const recentes = despesas.filter((d) => d.data >= seteDiasAtras);
+  const recentes = useMemo(() => {
+    const limite = getDataMinusDias(new Date(), 7);
+    return expenses.filter((expense) => expense.date >= limite);
+  }, [expenses]);
 
   return (
     <DespesaSaida
-      despesas={recentes}
+      expenses={recentes}
       periodo="Últimos 7 dias"
-      textoFallback="Nenhuma despesa nos últimos 7 dias."
+      emptyHint="Nenhuma despesa nos últimos 7 dias. Toque em + para adicionar."
     />
   );
 }

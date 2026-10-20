@@ -1,129 +1,264 @@
-import { useContext, useLayoutEffect, useState } from 'react';
-import { View, Text, TextInput, Pressable, Alert, Platform, StyleSheet } from 'react-native';
+import { useLayoutEffect, useState } from 'react';
+import {
+  View,
+  Text,
+  TextInput,
+  Pressable,
+  Alert,
+  Modal,
+  ScrollView,
+  KeyboardAvoidingView,
+  Platform,
+  StyleSheet,
+  useColorScheme,
+} from 'react-native';
 import DateTimePicker from '@react-native-community/datetimepicker';
-import { DespesasContext } from '../store/despesas-context';
-import { CATEGORIAS } from '../constants/categorias';
+import { Ionicons } from '@expo/vector-icons';
+import { useExpenses } from '../store/expenses-context';
+import { CATEGORIES } from '../constants/categories';
+import { getTheme } from '../constants/theme';
 import { getDataFormatada } from '../util/data';
 
+// Retorna um objeto { campo: 'mensagem' } só com os campos inválidos
+function validate(values) {
+  const errors = {};
+
+  if (values.description.trim().length < 3) {
+    errors.description = 'A descrição deve ter no mínimo 3 caracteres.';
+  }
+
+  const amount = parseFloat(values.amount);
+  if (isNaN(amount) || amount <= 0) {
+    errors.amount = 'O valor deve ser maior que zero.';
+  }
+
+  const endOfToday = new Date();
+  endOfToday.setHours(23, 59, 59, 999);
+  if (values.date > endOfToday) {
+    errors.date = 'A data não pode ser futura.';
+  }
+
+  if (!values.category) {
+    errors.category = 'Selecione uma categoria.';
+  }
+
+  return errors;
+}
+
 export default function GerenciarDespesa({ route, navigation }) {
-  const despesaId = route.params?.despesaId;
-  const editando = !!despesaId;
+  const expenseId = route.params?.expenseId;
+  const isEditing = !!expenseId;
 
-  const { despesas, addDespesa, updateDespesa, deleteDespesa } = useContext(DespesasContext);
-  const despesaEditada = despesas.find((d) => d.id === despesaId);
+  const { expenses, addExpense, updateExpense, deleteExpense } = useExpenses();
+  const editingExpense = expenses.find((expense) => expense.id === expenseId);
+  const colors = getTheme(useColorScheme());
 
-  const [descricao, setDescricao] = useState(despesaEditada?.descricao ?? '');
-  const [valor, setValor] = useState(despesaEditada ? despesaEditada.valor.toString() : '');
-  const [data, setData] = useState(despesaEditada?.data ?? new Date());
-  const [categoria, setCategoria] = useState(despesaEditada?.categoria ?? '');
-  const [mostrarPicker, setMostrarPicker] = useState(false);
+  // estado único do formulário
+  const [form, setForm] = useState({
+    description: editingExpense?.description ?? '',
+    amount: editingExpense ? String(editingExpense.amount) : '',
+    date: editingExpense?.date ?? new Date(),
+    category: editingExpense?.category ?? '',
+  });
+  const [errors, setErrors] = useState({});
+  const [showPicker, setShowPicker] = useState(false);
+  const [modalVisible, setModalVisible] = useState(false);
 
   useLayoutEffect(() => {
-    navigation.setOptions({ title: editando ? 'Editar Despesa' : 'Nova Despesa' });
-  }, [navigation, editando]);
+    navigation.setOptions({ title: isEditing ? 'Editar despesa' : 'Nova despesa' });
+  }, [navigation, isEditing]);
 
-  // Regex: só números com no máximo 2 casas decimais
-  function tratarValor(texto) {
-    const normalizado = texto.replace(',', '.');
-    if (/^\d*\.?\d{0,2}$/.test(normalizado)) {
-      setValor(normalizado);
+  function handleChange(field, value) {
+    const updated = { ...form, [field]: value };
+    setForm(updated);
+    // se já há erros na tela, revalida: as mensagens somem conforme os campos são corrigidos
+    if (Object.keys(errors).length > 0) {
+      setErrors(validate(updated));
     }
   }
 
-  function aoMudarData(event, dataSelecionada) {
-    setMostrarPicker(Platform.OS === 'ios'); // fecha no Android
-    if (event.type === 'set' && dataSelecionada) {
-      setData(dataSelecionada);
+  function handleAmountChange(text) {
+    const normalized = text.replace(',', '.');
+    if (/^\d*\.?\d{0,2}$/.test(normalized)) {
+      handleChange('amount', normalized);
     }
   }
 
-  function confirmar() {
-    const valorNumero = parseFloat(valor);
-
-    if (descricao.trim().length === 0 || !valor || isNaN(valorNumero) || valorNumero <= 0 || !categoria) {
-      Alert.alert('Dados inválidos', 'Preencha descrição, valor (maior que zero) e categoria.');
-      return;
+  function handleDateChange(event, selectedDate) {
+    setShowPicker(Platform.OS === 'ios'); // no Android o seletor fecha sozinho
+    if (event.type === 'set' && selectedDate) {
+      handleChange('date', selectedDate);
     }
+  }
 
-    const dados = { descricao: descricao.trim(), valor: valorNumero, data, categoria };
+  function handleSave() {
+    const validationErrors = validate(form);
+    setErrors(validationErrors);
+    if (Object.keys(validationErrors).length > 0) return; // bloqueia o salvamento
 
-    if (editando) updateDespesa(despesaId, dados);
-    else addDespesa(dados);
+    const data = {
+      description: form.description.trim(),
+      amount: parseFloat(form.amount),
+      date: form.date,
+      category: form.category,
+    };
+
+    if (isEditing) updateExpense(expenseId, data);
+    else addExpense(data);
 
     navigation.goBack();
   }
 
-  function excluir() {
-    deleteDespesa(despesaId);
-    navigation.goBack();
+  function handleDelete() {
+    Alert.alert('Excluir despesa', 'Tem certeza que deseja excluir esta despesa?', [
+      { text: 'Cancelar', style: 'cancel' },
+      {
+        text: 'Excluir',
+        style: 'destructive',
+        onPress: () => {
+          deleteExpense(expenseId);
+          navigation.goBack();
+        },
+      },
+    ]);
   }
+
+  // borda vermelha no campo inválido
+  const fieldStyle = (field) => [
+    styles.input,
+    {
+      backgroundColor: colors.inputBackground,
+      borderColor: errors[field] ? colors.error : colors.border,
+    },
+  ];
+
+  const renderError = (field) =>
+    errors[field] ? <Text style={[styles.error, { color: colors.error }]}>{errors[field]}</Text> : null;
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.label}>Descrição</Text>
-      <TextInput style={styles.input} value={descricao} onChangeText={setDescricao} placeholder="Ex: Almoço" />
+    <KeyboardAvoidingView
+      style={[styles.flex, { backgroundColor: colors.background }]}
+      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+    >
+      <ScrollView contentContainerStyle={styles.container} keyboardShouldPersistTaps="handled">
+        <Text style={[styles.label, { color: colors.text }]}>Descrição</Text>
+        <TextInput
+          style={[fieldStyle('description'), { color: colors.text }]}
+          value={form.description}
+          onChangeText={(text) => handleChange('description', text)}
+          placeholder="Ex: Almoço"
+          placeholderTextColor={colors.textSecondary}
+        />
+        {renderError('description')}
 
-      <Text style={styles.label}>Valor (R$)</Text>
-      <TextInput
-        style={styles.input}
-        value={valor}
-        onChangeText={tratarValor}
-        keyboardType="decimal-pad"
-        placeholder="0.00"
-      />
+        <Text style={[styles.label, { color: colors.text }]}>Valor (R$)</Text>
+        <TextInput
+          style={[fieldStyle('amount'), { color: colors.text }]}
+          value={form.amount}
+          onChangeText={handleAmountChange}
+          keyboardType="decimal-pad"
+          placeholder="0.00"
+          placeholderTextColor={colors.textSecondary}
+        />
+        {renderError('amount')}
 
-      <Text style={styles.label}>Data</Text>
-      <Pressable style={styles.input} onPress={() => setMostrarPicker(true)}>
-        <Text>{getDataFormatada(data)}</Text>
-      </Pressable>
-      {mostrarPicker && (
-        <DateTimePicker value={data} mode="date" maximumDate={new Date()} onChange={aoMudarData} />
-      )}
+        <Text style={[styles.label, { color: colors.text }]}>Data</Text>
+        <Pressable style={fieldStyle('date')} onPress={() => setShowPicker(true)}>
+          <Text style={{ color: colors.text }}>{getDataFormatada(form.date)}</Text>
+        </Pressable>
+        {renderError('date')}
+        {showPicker && <DateTimePicker value={form.date} mode="date" onChange={handleDateChange} />}
 
-      <Text style={styles.label}>Categoria</Text>
-      <View style={styles.categorias}>
-        {CATEGORIAS.map((cat) => (
+        <Text style={[styles.label, { color: colors.text }]}>Categoria</Text>
+        <Pressable
+          style={[fieldStyle('category'), styles.selectRow]}
+          onPress={() => setModalVisible(true)}
+        >
+          <Text style={{ color: form.category ? colors.text : colors.textSecondary }}>
+            {form.category || 'Selecione uma categoria'}
+          </Text>
+          <Ionicons name="chevron-down" size={18} color={colors.textSecondary} />
+        </Pressable>
+        {renderError('category')}
+
+        <View style={styles.buttons}>
           <Pressable
-            key={cat}
-            onPress={() => setCategoria(cat)}
-            style={[styles.chip, categoria === cat && styles.chipAtivo]}
+            style={[styles.button, { backgroundColor: colors.textSecondary }]}
+            onPress={() => navigation.goBack()}
           >
-            <Text style={[styles.chipTexto, categoria === cat && styles.chipTextoAtivo]}>{cat}</Text>
+            <Text style={styles.buttonText}>Cancelar</Text>
           </Pressable>
-        ))}
-      </View>
+          <Pressable style={[styles.button, { backgroundColor: colors.primary }]} onPress={handleSave}>
+            <Text style={styles.buttonText}>{isEditing ? 'Atualizar' : 'Salvar'}</Text>
+          </Pressable>
+        </View>
 
-      <View style={styles.botoes}>
-        <Pressable style={[styles.botao, styles.cancelar]} onPress={() => navigation.goBack()}>
-          <Text style={styles.botaoTexto}>Cancelar</Text>
-        </Pressable>
-        <Pressable style={[styles.botao, styles.salvar]} onPress={confirmar}>
-          <Text style={styles.botaoTexto}>{editando ? 'Atualizar' : 'Adicionar'}</Text>
-        </Pressable>
-      </View>
+        {isEditing && (
+          <Pressable style={[styles.button, { backgroundColor: colors.error }]} onPress={handleDelete}>
+            <Ionicons name="trash-outline" size={18} color="#fff" />
+            <Text style={styles.buttonText}> Excluir</Text>
+          </Pressable>
+        )}
+      </ScrollView>
 
-      {editando && (
-        <Pressable style={[styles.botao, styles.excluir]} onPress={excluir}>
-          <Text style={styles.botaoTexto}>Excluir</Text>
+      {/* Modal de categoria: sem digitação livre */}
+      <Modal
+        transparent
+        animationType="slide"
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <Pressable
+          style={[styles.overlay, { backgroundColor: colors.overlay }]}
+          onPress={() => setModalVisible(false)}
+        >
+          <View style={[styles.sheet, { backgroundColor: colors.card }]}>
+            <Text style={[styles.sheetTitle, { color: colors.text }]}>Escolha a categoria</Text>
+            {CATEGORIES.map((cat) => (
+              <Pressable
+                key={cat}
+                style={styles.option}
+                onPress={() => {
+                  handleChange('category', cat);
+                  setModalVisible(false);
+                }}
+              >
+                <Text style={{ color: colors.text, fontSize: 16 }}>{cat}</Text>
+                {form.category === cat && <Ionicons name="checkmark" size={20} color={colors.primary} />}
+              </Pressable>
+            ))}
+          </View>
         </Pressable>
-      )}
-    </View>
+      </Modal>
+    </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, padding: 20 },
+  flex: { flex: 1 },
+  container: { padding: 20 },
   label: { fontWeight: 'bold', marginTop: 14, marginBottom: 6 },
-  input: { borderWidth: 1, borderColor: '#ccc', borderRadius: 6, padding: 10, backgroundColor: '#fff' },
-  categorias: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16, backgroundColor: '#e0e0e0' },
-  chipAtivo: { backgroundColor: '#3e04c3' },
-  chipTexto: { color: '#333' },
-  chipTextoAtivo: { color: '#fff', fontWeight: 'bold' },
-  botoes: { flexDirection: 'row', gap: 10, marginTop: 24 },
-  botao: { flex: 1, padding: 12, borderRadius: 6, alignItems: 'center', marginTop: 8 },
-  cancelar: { backgroundColor: '#888' },
-  salvar: { backgroundColor: '#3e04c3' },
-  excluir: { backgroundColor: '#c0392b' },
-  botaoTexto: { color: '#fff', fontWeight: 'bold' },
+  input: { borderWidth: 1, borderRadius: 6, padding: 10 },
+  selectRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  error: { fontSize: 12, marginTop: 4 },
+  buttons: { flexDirection: 'row', gap: 10, marginTop: 24 },
+  button: {
+    flex: 1,
+    padding: 12,
+    borderRadius: 6,
+    marginTop: 8,
+    alignItems: 'center',
+    justifyContent: 'center',
+    flexDirection: 'row',
+  },
+  buttonText: { color: '#fff', fontWeight: 'bold' },
+  overlay: { flex: 1, justifyContent: 'flex-end' },
+  sheet: { padding: 20, borderTopLeftRadius: 16, borderTopRightRadius: 16 },
+  sheetTitle: { fontSize: 18, fontWeight: 'bold', marginBottom: 8 },
+  option: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 14,
+  },
 });
