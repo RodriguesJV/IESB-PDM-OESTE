@@ -23,10 +23,7 @@ export default function Wallet() {
       <Text style={styles.total}>R$ {totalFormatado}</Text>
 
       
-      <Button
-        title="(teste) Adicionar R$ 32,50"
-        onPress={() => addExpense({ title: 'Teste', amount: 32.5, date: new Date() })}
-      />
+     
 
       <Button title="Compartilhar resumo" onPress={handleShare} />
     </View>
