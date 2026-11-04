@@ -11,6 +11,7 @@ import { getTheme } from './src/constants/theme';
 import TodasDespesas from './src/screens/TodasDespesas';
 import DespesasRecentes from './src/screens/DespesasRecentes';
 import GerenciarDespesa from './src/screens/GerenciarDespesa';
+import AuthProvider from './src/auth-contexto';
 
 const Stack = createNativeStackNavigator();
 const Tabs = createBottomTabNavigator();
@@ -71,14 +72,16 @@ export default function App() {
     <ExpensesContextProvider>
       <StatusBar style="auto" />
       <NavigationContainer theme={navTheme}>
-        <Stack.Navigator>
-          <Stack.Screen name="VisaoGeral" component={VisaoGeral} options={{ headerShown: false }} />
-          <Stack.Screen
-            name="GerenciarDespesa"
-            component={GerenciarDespesa}
-            options={{ presentation: 'modal' }}
-          />
-        </Stack.Navigator>
+        <AuthProvider>
+          <Stack.Navigator>
+            <Stack.Screen name="VisaoGeral" component={VisaoGeral} options={{ headerShown: false }} />
+            <Stack.Screen
+              name="GerenciarDespesa"
+              component={GerenciarDespesa}
+              options={{ presentation: 'modal' }}
+            />
+          </Stack.Navigator>
+        </AuthProvider>
       </NavigationContainer>
     </ExpensesContextProvider>
   );
